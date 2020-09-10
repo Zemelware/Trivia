@@ -9,7 +9,6 @@
 import SwiftUI
 
 struct QuizView: View {
-    
     var numberOfQuestions: Int
     var selectedCategoryID: Int
     var selectedDifficulty: String
@@ -19,7 +18,7 @@ struct QuizView: View {
     
     @State private var currentQuestionIndex = 0
     @State private var score = 0
-    @State private var answerTapped = false
+    @State private var answersTapped = [Bool]()
     
     private var currentDifficulty: String {
         if networkManager.questions.count != 0 {
@@ -28,6 +27,7 @@ struct QuizView: View {
             return "Difficulty"
         }
     }
+    
     private var difficultyColor: Color {
         if currentDifficulty == "easy" {
             return .blue
@@ -86,10 +86,10 @@ struct QuizView: View {
                                 if answer == self.currentQuestion.correct_answer {
                                     self.score += 1
                                 }
-                                self.answerTapped = true
+                                self.answersTapped[self.currentQuestionIndex] = true
                             }) {
-                                AnswerButtonLabel(answerText: answer, correctAnswer: self.currentQuestion.correct_answer, answerTapped: self.answerTapped)
-                            }.disabled(self.answerTapped)
+                                AnswerButtonLabel(answerText: answer, correctAnswer: self.currentQuestion.correct_answer, answerTapped: self.answersTapped[self.currentQuestionIndex])
+                            }.disabled(self.answersTapped[self.currentQuestionIndex])
                         }
                         
                     } else {
@@ -114,7 +114,6 @@ struct QuizView: View {
                     HStack {
                         Button(action: {
                             self.currentQuestionIndex -= 1
-                            self.answerTapped = true
                         }) {
                             Text("Previous")
                         }.disabled(self.currentQuestionIndex == 0 ? true : false)
@@ -127,10 +126,9 @@ struct QuizView: View {
                         
                         Button(action: {
                             self.currentQuestionIndex += 1
-                            self.answerTapped = false
                         }) {
                             Text("Next")
-                        }.disabled(!answerTapped)
+                        }.disabled(!self.answersTapped[currentQuestionIndex])
                     }.padding(.horizontal, 20)
                 }
                 
@@ -138,7 +136,9 @@ struct QuizView: View {
         }
         .navigationBarTitle("Score: \(score)")
         .onAppear {
-            self.networkManager.fetchQuestions(questions: self.numberOfQuestions, categoryID: self.selectedCategoryID, difficulty: self.selectedDifficulty, type: self.selectedType)
+            self.networkManager.fetchQuestions(questions: self.numberOfQuestions, categoryID: self.selectedCategoryID, difficulty: self.selectedDifficulty, type: self.selectedType) {
+                self.answersTapped = Array(repeating: false, count: self.networkManager.questions.count)
+            }
         }
     }
     

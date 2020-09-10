@@ -13,7 +13,7 @@ class NetworkManager: ObservableObject {
     @Published var questions = [Question]()
     @Published var categories = [Category]()
     
-    func fetchQuestions(questions: Int, categoryID: Int, difficulty: String, type: String) {
+    func fetchQuestions(questions: Int, categoryID: Int, difficulty: String, type: String, completed: (() -> ())? = nil) {
         let difficultyString = difficulty == "Any" ? "" : "&difficulty=\(difficulty.lowercased())"
         var typeString: String {
             if type == "Any" {
@@ -36,6 +36,8 @@ class NetworkManager: ObservableObject {
                     
                     DispatchQueue.main.async {
                         self.questions = results.results
+                        
+                        completed?()
                     }
                 } catch {
                     print(error)
