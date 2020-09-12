@@ -49,95 +49,101 @@ struct QuizView: View {
         ZStack {
             Color.green.edgesIgnoringSafeArea(.all)
             
-            VStack {
-                
-                HStack(alignment: .center) {
-                    Text(networkManager.questions.count == 0 ? "Category" : currentQuestion.category)
-                        .font(.system(size: 20))
-                        .padding(.trailing, 15)
+            if answersTapped.count != 0 {
+                VStack {
+                    
+                    HStack(alignment: .center) {
+                        Text(networkManager.questions.count == 0 ? "Category" : currentQuestion.category)
+                            .font(.system(size: 20))
+                            .padding(.trailing, 15)
+                        
+                        Spacer()
+                        
+                        Text(currentDifficulty.capitalized)
+                            .font(.system(size: 20))
+                            .padding(.vertical, 5)
+                            .padding(.horizontal, 15)
+                            .background(difficultyColor)
+                            .clipShape(Capsule())
+                            .padding(.leading, 15)
+                    }.padding(.horizontal, 20)
                     
                     Spacer()
                     
-                    Text(currentDifficulty.capitalized)
-                        .font(.system(size: 20))
-                        .padding(.vertical, 5)
-                        .padding(.horizontal, 15)
-                        .background(difficultyColor)
-                        .clipShape(Capsule())
-                        .padding(.leading, 15)
-                }.padding(.horizontal, 20)
-                
-                Spacer()
-                
-                Text(networkManager.questions.count == 0 ? "Question" : currentQuestion.question)
-                    .padding(.top, 10)
-                    .font(.system(size: 30))
-                    .frame(width: screenWidth - 40)
-                
-                Spacer()
-                Spacer()
-                
-                VStack(spacing: 10) {
+                    Text(networkManager.questions.count == 0 ? "Question" : currentQuestion.question)
+                        .padding(.top, 10)
+                        .font(.system(size: 30))
+                        .frame(width: screenWidth - 40)
                     
-                    if networkManager.questions.count != 0 {
+                    Spacer()
+                    Spacer()
+                    
+                    VStack(spacing: 10) {
                         
-                        ForEach(currentQuestion.possibleAnswers, id: \.self) { answer in
-                            Button(action: {
-                                if answer == self.currentQuestion.correct_answer {
-                                    self.score += 1
-                                }
-                                self.answersTapped[self.currentQuestionIndex] = true
-                            }) {
-                                AnswerButtonLabel(answerText: answer, correctAnswer: self.currentQuestion.correct_answer, answerTapped: self.answersTapped[self.currentQuestionIndex])
-                            }.disabled(self.answersTapped[self.currentQuestionIndex])
+                        if networkManager.questions.count != 0 {
+                            
+                            ForEach(currentQuestion.possibleAnswers, id: \.self) { answer in
+                                Button(action: {
+                                    if answer == self.currentQuestion.correct_answer {
+                                        self.score += 1
+                                    }
+                                    self.answersTapped[self.currentQuestionIndex] = true
+                                }) {
+                                    AnswerButtonLabel(answerText: answer, correctAnswer: self.currentQuestion.correct_answer, answerTapped: self.answersTapped[self.currentQuestionIndex])
+                                }.disabled(self.answersTapped[self.currentQuestionIndex])
+                            }
+                            
+                        } else {
+                            Text("True")
+                                .frame(width: screenWidth - 40)
+                                .padding(.vertical)
+                                .foregroundColor(.white)
+                                .background(Color.blue)
+                                .cornerRadius(15)
+                            
+                            Text("False")
+                                .frame(width: screenWidth - 40)
+                                .padding(.vertical)
+                                .foregroundColor(.white)
+                                .background(Color.red)
+                                .cornerRadius(15)
                         }
                         
-                    } else {
-                        Text("True")
-                            .frame(width: screenWidth - 40)
-                            .padding(.vertical)
-                            .foregroundColor(.white)
-                            .background(Color.blue)
-                            .cornerRadius(15)
-                        
-                        Text("False")
-                            .frame(width: screenWidth - 40)
-                            .padding(.vertical)
-                            .foregroundColor(.white)
-                            .background(Color.red)
-                            .cornerRadius(15)
+                    }.padding(.bottom)
+                    
+                    if networkManager.questions.count != 0 {
+                        HStack {
+                            Button(action: {
+                                self.currentQuestionIndex -= 1
+                            }) {
+                                Text("Previous")
+                            }.disabled(self.currentQuestionIndex == 0 ? true : false)
+                            
+                            Spacer()
+                            
+                            Text("Question \(currentQuestionIndex + 1)")
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                self.currentQuestionIndex += 1
+                            }) {
+                                Text("Next")
+                            }.disabled(!self.answersTapped[currentQuestionIndex])
+                        }.padding(.horizontal, 20)
                     }
                     
-                }.padding(.bottom)
-                
-                if networkManager.questions.count != 0 {
-                    HStack {
-                        Button(action: {
-                            self.currentQuestionIndex -= 1
-                        }) {
-                            Text("Previous")
-                        }.disabled(self.currentQuestionIndex == 0 ? true : false)
-                        
-                        Spacer()
-                        
-                        Text("Question \(currentQuestionIndex + 1)")
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            self.currentQuestionIndex += 1
-                        }) {
-                            Text("Next")
-                        }.disabled(!self.answersTapped[currentQuestionIndex])
-                    }.padding(.horizontal, 20)
                 }
-                
             }
         }
         .navigationBarTitle("Score: \(score)")
         .onAppear {
+            print("View Appeared")
+            print(self.answersTapped)
             self.networkManager.fetchQuestions(questions: self.numberOfQuestions, categoryID: self.selectedCategoryID, difficulty: self.selectedDifficulty, type: self.selectedType) {
                 self.answersTapped = Array(repeating: false, count: self.networkManager.questions.count)
+
+                print("\(self.answersTapped)\n")
             }
         }
     }

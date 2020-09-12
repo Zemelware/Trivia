@@ -12,6 +12,7 @@ class NetworkManager: ObservableObject {
     
     @Published var questions = [Question]()
     @Published var categories = [Category]()
+    @Published var responseCode = 0
     
     func fetchQuestions(questions: Int, categoryID: Int, difficulty: String, type: String, completed: (() -> ())? = nil) {
         let difficultyString = difficulty == "Any" ? "" : "&difficulty=\(difficulty.lowercased())"
@@ -36,6 +37,7 @@ class NetworkManager: ObservableObject {
                     
                     DispatchQueue.main.async {
                         self.questions = results.results
+                        self.responseCode = results.response_code
                         
                         completed?()
                     }

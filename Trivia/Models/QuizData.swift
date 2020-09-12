@@ -10,6 +10,7 @@ import Foundation
 import GameplayKit
 
 struct Results: Decodable {
+    let response_code: Int
     let results: [Question]
 }
 
