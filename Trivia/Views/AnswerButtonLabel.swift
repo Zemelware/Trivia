@@ -14,21 +14,29 @@ struct AnswerButtonLabel: View {
     var correctAnswer: String
     var answerTapped: Bool
     
-    let screenWidth = UIScreen.main.bounds.width
+    private var checkmarkImage: Image? {
+        if answerTapped && answerText == correctAnswer {
+            return Image(systemName: "checkmark.circle.fill")
+        }
+        return nil
+    }
+    
+    private let screenWidth = UIScreen.main.bounds.width
     
     var body: some View {
         Text(answerText)
             .frame(width: self.screenWidth - 40)
             .padding(.vertical)
-            .foregroundColor(self.answerTapped && answerText == self.correctAnswer ? .green : .white)
-            .font(self.answerTapped && answerText == self.correctAnswer ? Font.body.bold() : .body)
+            .foregroundColor(answerTapped && answerText == correctAnswer ? .green : .white)
+            .font(answerTapped && answerText == correctAnswer ? Font.body.weight(.black) : .body)
             .background(answerText == "False" ? Color.red : Color.blue)
             .cornerRadius(15)
+            .overlay(checkmarkImage.foregroundColor(.green).font(.system(size: 30)).padding(.trailing, 10), alignment: .trailing)
     }
 }
 
 struct AnswerButtonLabel_Previews: PreviewProvider {
     static var previews: some View {
-        AnswerButtonLabel(answerText: "True", correctAnswer: "True", answerTapped: false).previewLayout(.sizeThatFits)
+        AnswerButtonLabel(answerText: "True", correctAnswer: "True", answerTapped: true).previewLayout(.sizeThatFits)
     }
 }

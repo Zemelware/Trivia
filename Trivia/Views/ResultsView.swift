@@ -14,6 +14,7 @@ struct ResultsView: View {
     
     @State private var showingAnswers = false
     
+    let questions: [Question]
     let correctQuestions: Int
     let totalQuestions: Int
     
@@ -74,7 +75,7 @@ struct ResultsView: View {
                     .clipShape(Capsule())
                     .padding(.top, 50)
             }.sheet(isPresented: $showingAnswers) {
-                Text("Answers")
+                AnswersView(questions: self.questions)
             }
             
             Spacer()
@@ -101,7 +102,7 @@ struct ResultsScreen_Previews: PreviewProvider {
             ZStack {
                 Color.green.edgesIgnoringSafeArea(.all)
                 
-                ResultsView(correctQuestions: 8, totalQuestions: 10)
+                ResultsView(questions: [Question](), correctQuestions: 8, totalQuestions: 10)
             }
         }
     }

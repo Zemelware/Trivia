@@ -14,7 +14,7 @@ struct Results: Decodable {
     let results: [Question]
 }
 
-struct Question: Decodable, Hashable {
+struct Question: Decodable, Hashable, Identifiable {
     let category: String
     let type: String
     let difficulty: String
@@ -37,6 +37,7 @@ struct Question: Decodable, Hashable {
             return ["True", "False"]
         }
     }
+    let id = UUID()
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(category)
