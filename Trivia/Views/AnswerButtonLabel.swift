@@ -29,6 +29,6 @@ struct AnswerButtonLabel: View {
 
 struct AnswerButtonLabel_Previews: PreviewProvider {
     static var previews: some View {
-        AnswerButtonLabel(answerText: "True", correctAnswer: "True", answerTapped: false)
+        AnswerButtonLabel(answerText: "True", correctAnswer: "True", answerTapped: false).previewLayout(.sizeThatFits)
     }
 }

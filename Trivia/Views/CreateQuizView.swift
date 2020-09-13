@@ -20,6 +20,8 @@ struct CreateQuizView: View {
     private let difficulties = ["Any", "Easy", "Medium", "Hard"]
     private let questionTypes = ["Any", "Multiple Choice", "True or False"]
     
+    private let screenWidth = UIScreen.main.bounds.width
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -60,8 +62,8 @@ struct CreateQuizView: View {
                 
                 NavigationLink(destination: QuizView(numberOfQuestions: self.numberOfQuestions, selectedCategoryID: self.selectedCategory.id, selectedDifficulty: self.selectedDifficulty, selectedType: self.selectedType)) {
                     Text("Generate Quiz")
+                        .frame(width: screenWidth - 120)
                         .padding(.vertical)
-                        .padding(.horizontal, 80)
                         .font(.headline)
                         .foregroundColor(.white)
                         .background(Color.green)

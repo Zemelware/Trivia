@@ -17,15 +17,15 @@ struct QuizView: View {
     @ObservedObject private var networkManager = NetworkManager()
     
     @State private var currentQuestionIndex = 0
-    @State private var score = 0
-    @State private var answersTapped = [Bool]()
-    @State private var showingAlert = false
+    @State private var correctQuestions = 0
     @State private var totalQuestions = 0
     @State private var availableQuestionsForDifficulty = 0
+    @State private var answersTapped = [Bool]()
+    @State private var showingAlert = false
     
     private var currentDifficulty: String {
         if networkManager.questions.count != 0 {
-            return networkManager.questions[currentQuestionIndex].difficulty
+            return currentQuestion.difficulty
         } else {
             return "Difficulty"
         }
@@ -42,7 +42,11 @@ struct QuizView: View {
     }
 
     private var currentQuestion: Question {
-        networkManager.questions[currentQuestionIndex]
+        if currentQuestionIndex != totalQuestions {
+            return networkManager.questions[currentQuestionIndex]
+        } else {
+            return Question(category: "", type: "", difficulty: "", question: "", correct_answer: "", incorrect_answers: [String]())
+        }
     }
     
     let screenWidth = UIScreen.main.bounds.width
@@ -52,7 +56,13 @@ struct QuizView: View {
         ZStack {
             Color.green.edgesIgnoringSafeArea(.all)
             
-            if answersTapped.count != 0 {
+            if answersTapped.count == 0 {
+                Text("Loading Quiz...")
+                .font(.title)
+            } else if currentQuestionIndex == answersTapped.count {
+                ResultsScreen(correctQuestions: correctQuestions, totalQuestions: totalQuestions)
+            } else {
+                
                 VStack {
                     
                     HStack(alignment: .center) {
@@ -88,7 +98,7 @@ struct QuizView: View {
                             ForEach(currentQuestion.possibleAnswers, id: \.self) { answer in
                                 Button(action: {
                                     if answer == self.currentQuestion.correct_answer {
-                                        self.score += 1
+                                        self.correctQuestions += 1
                                     }
                                     self.answersTapped[self.currentQuestionIndex] = true
                                 }) {
@@ -137,12 +147,10 @@ struct QuizView: View {
                     }
                     
                 }
-            } else {
-                Text("Loading Quiz...")
-                    .font(.title)
             }
+            
         }
-        .navigationBarTitle("Score: \(score)")
+        .navigationBarTitle("Score: \(correctQuestions)")
         .onAppear {
             self.totalQuestions = self.numberOfQuestions
             
@@ -197,6 +205,8 @@ struct QuizView: View {
 
 struct QuizView_Previews: PreviewProvider {
     static var previews: some View {
-        QuizView(numberOfQuestions: 10, selectedCategoryID: 0, selectedDifficulty: "Any Difficulty", selectedType: "Any Type")
+        NavigationView {
+            QuizView(numberOfQuestions: 10, selectedCategoryID: 0, selectedDifficulty: "Any Difficulty", selectedType: "Any Type")
+        }
     }
 }
