@@ -19,6 +19,8 @@ struct QuizView: View {
     @State private var currentQuestionIndex = 0
     @State private var score = 0
     @State private var answersTapped = [Bool]()
+    @State private var showingAlert = false
+    @State private var availableQuestionsForDifficulty = 0
     
     private var currentDifficulty: String {
         if networkManager.questions.count != 0 {
@@ -134,17 +136,55 @@ struct QuizView: View {
                     }
                     
                 }
+            } else {
+                Text("Loading Quiz...")
+                    .font(.title)
             }
         }
         .navigationBarTitle("Score: \(score)")
         .onAppear {
-            print("View Appeared")
-            print(self.answersTapped)
-            self.networkManager.fetchQuestions(questions: self.numberOfQuestions, categoryID: self.selectedCategoryID, difficulty: self.selectedDifficulty, type: self.selectedType) {
+            self.fetchQuestions {
                 self.answersTapped = Array(repeating: false, count: self.networkManager.questions.count)
 
-                print("\(self.answersTapped)\n")
+                // If response code is 1, it means there were no results, but there could be results if fewer questions were passed in.
+                if self.networkManager.responseCode == 1 {
+                    
+                    self.networkManager.fetchCategoryQuestionsData(categoryID: self.selectedCategoryID) {
+                        
+                        if self.selectedDifficulty == "Easy" {
+                            self.availableQuestionsForDifficulty = self.networkManager.categoryQuestionCount.total_easy_question_count
+                        } else if self.selectedDifficulty == "Medium" {
+                            self.availableQuestionsForDifficulty = self.networkManager.categoryQuestionCount.total_medium_question_count
+                        } else if self.selectedDifficulty == "Hard" {
+                            self.availableQuestionsForDifficulty = self.networkManager.categoryQuestionCount.total_hard_question_count
+                        } else { // Any difficulty
+                            self.availableQuestionsForDifficulty = self.networkManager.categoryQuestionCount.total_question_count
+                        }
+                        
+                        self.fetchQuestions(questions: self.availableQuestionsForDifficulty) {
+                            self.answersTapped = Array(repeating: false, count: self.networkManager.questions.count)
+                        }
+                        
+                        self.showingAlert = true
+                    }
+                }
             }
+        }
+        .alert(isPresented: $showingAlert) {
+            var message = ""
+            if availableQuestionsForDifficulty == 0 {
+                message = "Sorry, there aren't any questions for the chosen quiz configuration."
+            } else {
+                message = "Sorry, there are only \(availableQuestionsForDifficulty) \(availableQuestionsForDifficulty == 1 ? "question" : "questions") for the chosen quiz configuration."
+            }
+            
+            return Alert(title: Text("There aren't \(numberOfQuestions) \(availableQuestionsForDifficulty == 1 ? "Question" : "Questions")!"), message: Text(message), dismissButton: .default(Text("Okay")))
+        }
+    }
+    
+    func fetchQuestions(questions: Int? = nil, completed: (() -> ())? = nil) {
+        networkManager.fetchQuestions(questions: questions == nil ? numberOfQuestions : questions!, categoryID: selectedCategoryID, difficulty: selectedDifficulty, type: selectedType) {
+            completed?()
         }
     }
     

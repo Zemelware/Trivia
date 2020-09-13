@@ -12,6 +12,7 @@ class NetworkManager: ObservableObject {
     
     @Published var questions = [Question]()
     @Published var categories = [Category]()
+    @Published var categoryQuestionCount = CategoryQuestionCount(total_question_count: 0, total_easy_question_count: 0, total_medium_question_count: 0, total_hard_question_count: 0)
     @Published var responseCode = 0
     
     func fetchQuestions(questions: Int, categoryID: Int, difficulty: String, type: String, completed: (() -> ())? = nil) {
@@ -60,6 +61,28 @@ class NetworkManager: ObservableObject {
                     
                     DispatchQueue.main.async {
                         self.categories = [Category(id: 0, name: "Any")] + results.trivia_categories
+                    }
+                } catch {
+                    print(error)
+                }
+            }
+        }.resume()
+    }
+    
+    func fetchCategoryQuestionsData(categoryID: Int, completed: (() -> ())? = nil) {
+        guard let url = URL(string: "https://opentdb.com/api_count.php?category=\(categoryID)") else { return }
+        
+        URLSession.shared.dataTask(with: url) { (data, response, error) in
+            guard error == nil else { print(error!); return }
+            
+            if let data = data {
+                do {
+                    let results = try JSONDecoder().decode(CategoryQuestionsData.self, from: data)
+                    
+                    DispatchQueue.main.async {
+                        self.categoryQuestionCount = results.category_question_count
+        
+                        completed?()
                     }
                 } catch {
                     print(error)

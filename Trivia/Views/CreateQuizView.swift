@@ -48,13 +48,13 @@ struct CreateQuizView: View {
                         }.pickerStyle(SegmentedPickerStyle())
                     }
                     
-                    Section(header: Text("Question Type")) {
-                        Picker("Question Type", selection: $selectedType) {
-                            ForEach(questionTypes, id: \.self) { type in
-                                Text(type)
-                            }
-                            }.pickerStyle(SegmentedPickerStyle())
-                    }
+//                    Section(header: Text("Question Type")) {
+//                        Picker("Question Type", selection: $selectedType) {
+//                            ForEach(questionTypes, id: \.self) { type in
+//                                Text(type)
+//                            }
+//                            }.pickerStyle(SegmentedPickerStyle())
+//                    }
 
                 }
                 
