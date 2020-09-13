@@ -60,7 +60,7 @@ struct QuizView: View {
                 Text("Loading Quiz...")
                 .font(.title)
             } else if currentQuestionIndex == answersTapped.count {
-                ResultsScreen(correctQuestions: correctQuestions, totalQuestions: totalQuestions)
+                ResultsView(correctQuestions: correctQuestions, totalQuestions: totalQuestions)
             } else {
                 
                 VStack {
