@@ -20,6 +20,7 @@ struct QuizView: View {
     @State private var score = 0
     @State private var answersTapped = [Bool]()
     @State private var showingAlert = false
+    @State private var totalQuestions = 0
     @State private var availableQuestionsForDifficulty = 0
     
     private var currentDifficulty: String {
@@ -130,7 +131,7 @@ struct QuizView: View {
                             Button(action: {
                                 self.currentQuestionIndex += 1
                             }) {
-                                Text("Next")
+                                Text(currentQuestionIndex + 1 != totalQuestions ? "Next" : "Submit")
                             }.disabled(!self.answersTapped[currentQuestionIndex])
                         }.padding(.horizontal, 20)
                     }
@@ -143,9 +144,11 @@ struct QuizView: View {
         }
         .navigationBarTitle("Score: \(score)")
         .onAppear {
+            self.totalQuestions = self.numberOfQuestions
+            
             self.fetchQuestions {
                 self.answersTapped = Array(repeating: false, count: self.networkManager.questions.count)
-
+                
                 // If response code is 1, it means there were no results, but there could be results if fewer questions were passed in.
                 if self.networkManager.responseCode == 1 {
                     
@@ -160,6 +163,8 @@ struct QuizView: View {
                         } else { // Any difficulty
                             self.availableQuestionsForDifficulty = self.networkManager.categoryQuestionCount.total_question_count
                         }
+                        
+                        self.totalQuestions = self.availableQuestionsForDifficulty
                         
                         self.fetchQuestions(questions: self.availableQuestionsForDifficulty) {
                             self.answersTapped = Array(repeating: false, count: self.networkManager.questions.count)
