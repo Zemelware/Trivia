@@ -40,6 +40,11 @@ class NetworkManager: ObservableObject {
                         self.questions = results.results
                         self.responseCode = results.response_code
                         
+                        // Decode the HTML entities. For example, turn &quot; into "
+                        for i in 0..<self.questions.count {
+                            self.questions[i].question = self.questions[i].question.decodeHTML()
+                        }
+                        
                         completed?()
                     }
                 } catch {

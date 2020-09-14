@@ -18,7 +18,7 @@ struct Question: Decodable, Hashable, Identifiable {
     let category: String
     let type: String
     let difficulty: String
-    let question: String
+    var question: String
     let correct_answer: String
     let incorrect_answers: [String]
     var possibleAnswers: [String] {
