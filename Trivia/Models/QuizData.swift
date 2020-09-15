@@ -29,7 +29,11 @@ struct Question: Decodable, Hashable, Identifiable {
             
             // This ensures that the shuffle of the array is the same every time so the buttons are in the same order.
             let lcg = GKLinearCongruentialRandomSource(seed: UInt64(abs(hashValue)))
-            let shuffledArray = lcg.arrayByShufflingObjects(in: answers) as! [String]
+            var shuffledArray = lcg.arrayByShufflingObjects(in: answers) as! [String]
+            
+            // Decode HTML
+            shuffledArray = shuffledArray.map { $0.decodeHTML() }
+            
             return shuffledArray
         } else {
             // True or false
@@ -37,7 +41,7 @@ struct Question: Decodable, Hashable, Identifiable {
             return ["True", "False"]
         }
     }
-    let id = UUID()
+    var id = UUID()
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(category)
